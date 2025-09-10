@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  nestjs-ai-stream:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+    restart: unless-stopped
+    container_name: nestjs-ai-stream
+    volumes:
+      # 可选：挂载日志目录
+      - ./stream-serve/logs:/app/logs

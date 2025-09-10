@@ -1,0 +1,3 @@
+packages:
+  - "stream-serve"
+  - "web-client"

@@ -1,0 +1,30 @@
+{
+  "name": "nestjs-ai-stream",
+  "version": "1.0.0",
+  "description": "NestJS AI Stream with Vue3 Frontend Monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "build": "pnpm --recursive run build",
+    "dev:web": "pnpm --filter web-client run dev",
+    "dev:server": "pnpm --filter stream-serve run start:dev",
+    "build:web": "pnpm --filter web-client run build",
+    "build:server": "pnpm --filter stream-serve run build",
+    "install:all": "pnpm install"
+  },
+  "keywords": [
+    "nestjs",
+    "vue3",
+    "vite",
+    "monorepo",
+    "ai-stream"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "pnpm@10.13.1"
+}

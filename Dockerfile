@@ -1,6 +1,7 @@
-# 简化版 Dockerfile for NestJS AI Stream Service
+# 多阶段构建 Dockerfile for NestJS AI Stream Service
 
-FROM node:18-alpine
+# 构建阶段
+FROM node:18-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -8,11 +9,11 @@ WORKDIR /app
 # 安装 pnpm
 RUN npm install -g pnpm
 
-# 复制 stream-serve 项目文件
+# 复制 package 文件
 COPY stream-serve/package.json ./
 COPY stream-serve/pnpm-lock.yaml* ./
 
-# 安装依赖
+# 安装所有依赖（包括 devDependencies，用于构建）
 RUN pnpm install --frozen-lockfile
 
 # 复制源代码
@@ -20,6 +21,26 @@ COPY stream-serve/ ./
 
 # 构建应用
 RUN pnpm run build
+
+# 生产阶段
+FROM node:18-alpine AS production
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装必要的工具和 pnpm
+RUN apk add --no-cache wget && \
+    npm install -g pnpm
+
+# 复制 package 文件
+COPY stream-serve/package.json ./
+COPY stream-serve/pnpm-lock.yaml* ./
+
+# 只安装生产依赖
+RUN pnpm install --frozen-lockfile --prod
+
+# 从构建阶段复制编译后的代码
+COPY --from=builder /app/dist ./dist
 
 # 设置环境变量
 ENV NODE_ENV=production

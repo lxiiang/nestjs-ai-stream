@@ -48,8 +48,8 @@ Jenkinsfile
 logs
 *.log
 
-# Web client (not needed for server build)
-web-client
+# 注释掉 web-client 排除，因为 monorepo 需要完整结构
+# web-client
 
 # Other unnecessary files
 .DS_Store

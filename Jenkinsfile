@@ -7,7 +7,7 @@ pipeline {
     }
     
     stages {
-        stage('📋 准备') {
+        stage('📋 准备1') {
             steps {
                 echo "🚀 开始构建 ${APP_NAME} - Build #${BUILD_NUMBER}"
                 sh 'node --version || echo "Node.js not found"'

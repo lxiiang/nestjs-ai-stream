@@ -20,7 +20,7 @@ RUN pnpm install --frozen-lockfile
 COPY stream-serve/ ./
 
 # 构建应用
-RUN pnpm run build
+RUN pnpm run build:server
 
 # 生产阶段
 FROM node:18-alpine AS production

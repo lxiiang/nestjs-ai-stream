@@ -7,7 +7,7 @@ export class AiService {
 
   constructor() {
     this.openai = new OpenAI({
-      apiKey: 'sk-17f003dbfd894fa789d4c1e181cffced',
+      apiKey: 'APIKEY', //作者用的是阿里云的百炼大模型有免费额度
       baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
     });
   }

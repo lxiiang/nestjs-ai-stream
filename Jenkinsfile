@@ -4,7 +4,6 @@ pipeline {
     environment {
         APP_NAME = 'nestjs-ai-stream-fullstack'
         BUILD_TAG = "${BUILD_NUMBER}"
-        COMPOSE_PROJECT_NAME = 'nestjs-ai-stream'
     }
     
     stages {
@@ -13,7 +12,7 @@ pipeline {
                 echo "🚀 开始构建 ${APP_NAME} - Build #${BUILD_NUMBER}"
                 sh 'node --version || echo "Node.js not found"'
                 sh 'docker --version || echo "Docker not found"'
-                sh 'docker-compose --version || echo "Docker Compose not found"'
+                echo "✅ 使用纯 Docker 命令进行构建和部署"
             }
         }
         
@@ -28,8 +27,9 @@ pipeline {
             steps {
                 echo "🏗️ 构建前后端一体化应用..."
                 sh '''
-                    # 使用 docker-compose 构建
-                    docker-compose build
+                    # 使用 docker build 构建镜像
+                    docker build -t ${APP_NAME}:${BUILD_TAG} .
+                    docker tag ${APP_NAME}:${BUILD_TAG} ${APP_NAME}:latest
                     echo "✅ 前后端应用构建完成"
                 '''
             }
@@ -39,12 +39,18 @@ pipeline {
             steps {
                 echo "🚀 部署前后端一体化应用..."
                 sh '''
-                    # 停止旧服务
-                    docker-compose down || true
+                    # 停止旧容器
+                    docker stop ${APP_NAME} || true
+                    docker rm ${APP_NAME} || true
                     
-                    # 设置环境变量并启动服务
-                    export DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
-                    docker-compose up -d
+                    # 启动新容器
+                    docker run -d \\
+                        --name ${APP_NAME} \\
+                        -p 8081:80 \\
+                        -p 3000:3000 \\
+                        -e NODE_ENV=production \\
+                        -e DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY} \\
+                        ${APP_NAME}:${BUILD_TAG}
                     
                     echo "✅ 前后端应用部署完成"
                     echo "🌐 前端访问地址: http://localhost:8081"
@@ -60,7 +66,8 @@ pipeline {
                     sleep 10
                     
                     # 检查容器状态
-                    docker-compose ps
+                    docker ps | grep ${APP_NAME} || exit 1
+                    echo "✅ 容器运行正常"
                     
                     # 检查前端服务
                     echo "🌐 检查前端服务..."
@@ -92,10 +99,10 @@ pipeline {
         failure {
             echo "❌ 构建部署失败！"
             sh '''
-                echo "查看服务状态："
-                docker-compose ps || true
-                echo "查看服务日志："
-                docker-compose logs || true
+                echo "查看容器状态："
+                docker ps -a | grep ${APP_NAME} || true
+                echo "查看容器日志："
+                docker logs ${APP_NAME} || true
             '''
         }
     }

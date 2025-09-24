@@ -2,16 +2,18 @@ pipeline {
     agent any
     
     environment {
-        APP_NAME = 'nestjs-ai-stream'
+        APP_NAME = 'nestjs-ai-stream-fullstack'
         BUILD_TAG = "${BUILD_NUMBER}"
+        COMPOSE_PROJECT_NAME = 'nestjs-ai-stream'
     }
     
     stages {
-        stage('📋 准备1') {
+        stage('📋 准备') {
             steps {
                 echo "🚀 开始构建 ${APP_NAME} - Build #${BUILD_NUMBER}"
                 sh 'node --version || echo "Node.js not found"'
                 sh 'docker --version || echo "Docker not found"'
+                sh 'docker-compose --version || echo "Docker Compose not found"'
             }
         }
         
@@ -22,34 +24,31 @@ pipeline {
             }
         }
         
-        stage('🏗️ 构建镜像') {
+        stage('🏗️ 构建应用') {
             steps {
-                echo "🏗️ 构建 Docker 镜像..."
+                echo "🏗️ 构建前后端一体化应用..."
                 sh '''
-                    docker build -t ${APP_NAME}:${BUILD_TAG} .
-                    docker tag ${APP_NAME}:${BUILD_TAG} ${APP_NAME}:latest
-                    echo "✅ 镜像构建完成"
+                    # 使用 docker-compose 构建
+                    docker-compose build
+                    echo "✅ 前后端应用构建完成"
                 '''
             }
         }
         
         stage('🚀 部署') {
             steps {
-                echo "🚀 部署应用..."
+                echo "🚀 部署前后端一体化应用..."
                 sh '''
-                    # 停止旧容器
-                    docker stop ${APP_NAME} || true
-                    docker rm ${APP_NAME} || true
+                    # 停止旧服务
+                    docker-compose down || true
                     
-                    # 启动新容器
-                    docker run -d \\
-                        --name ${APP_NAME} \\
-                        -p 3000:3000 \\
-                        -e NODE_ENV=production \\
-                        -e DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY} \\
-                        ${APP_NAME}:${BUILD_TAG}
+                    # 设置环境变量并启动服务
+                    export DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+                    docker-compose up -d
                     
-                    echo "✅ 应用部署完成"
+                    echo "✅ 前后端应用部署完成"
+                    echo "🌐 前端访问地址: http://localhost:8081"
+                    echo "🔗 后端API地址: http://localhost:3000"
                 '''
             }
         }
@@ -58,12 +57,20 @@ pipeline {
             steps {
                 echo "🔍 验证部署..."
                 sh '''
-                    sleep 5
-                    docker ps | grep ${APP_NAME} || exit 1
-                    echo "✅ 容器运行正常"
+                    sleep 10
                     
-                    # 简单的健康检查
-                    curl -f http://localhost:3000/ || echo "⚠️ 服务可能还在启动中"
+                    # 检查容器状态
+                    docker-compose ps
+                    
+                    # 检查前端服务
+                    echo "🌐 检查前端服务..."
+                    curl -f http://localhost:8081/ || echo "⚠️ 前端服务可能还在启动中"
+                    
+                    # 检查后端API
+                    echo "🔗 检查后端API..."
+                    curl -f http://localhost:3000/health || echo "⚠️ 后端API可能还在启动中"
+                    
+                    echo "✅ 前后端服务验证完成"
                 '''
             }
         }
@@ -85,8 +92,10 @@ pipeline {
         failure {
             echo "❌ 构建部署失败！"
             sh '''
-                echo "查看容器日志："
-                docker logs ${APP_NAME} || true
+                echo "查看服务状态："
+                docker-compose ps || true
+                echo "查看服务日志："
+                docker-compose logs || true
             '''
         }
     }

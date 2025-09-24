@@ -64,7 +64,3 @@ EXPOSE 3000
 # 启动应用
 CMD ["node", "dist/main"]
 
-# 标签信息
-LABEL maintainer="your-email@example.com"
-LABEL version="1.0.0"
-LABEL description="NestJS AI Stream Service with Alibaba Bailian (Monorepo)"

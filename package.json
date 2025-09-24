@@ -13,7 +13,7 @@
     "install:all": "pnpm install"
   },
   "keywords": [
-    "nestjs", 
+    "nestjs",
     "vue3",
     "vite",
     "monorepo",

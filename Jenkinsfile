@@ -43,18 +43,22 @@ pipeline {
                     docker stop ${APP_NAME} || true
                     docker rm ${APP_NAME} || true
                     
+                    # 清理可能占用端口的容器
+                    docker ps -a --filter "publish=8081" --format "table {{.Names}}" | grep -v NAMES | xargs -r docker stop || true
+                    docker ps -a --filter "publish=3001" --format "table {{.Names}}" | grep -v NAMES | xargs -r docker stop || true
+                    
                     # 启动新容器
                     docker run -d \\
                         --name ${APP_NAME} \\
                         -p 8081:80 \\
-                        -p 3000:3000 \\
+                        -p 3001:3000 \\
                         -e NODE_ENV=production \\
                         -e DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY} \\
                         ${APP_NAME}:${BUILD_TAG}
                     
                     echo "✅ 前后端应用部署完成"
                     echo "🌐 前端访问地址: http://localhost:8081"
-                    echo "🔗 后端API地址: http://localhost:3000"
+                    echo "🔗 后端API地址: http://localhost:3001"
                 '''
             }
         }

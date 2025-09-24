@@ -76,4 +76,4 @@ pnpm run build:server
 
 2. 使用 `pnpm run dev` 同时启动前后端服务
 3. 前端访问地址: http://localhost:5173
-4. 后端 API 地址: http://localhost:3000
+4. 后端 API 地址: http://localhost:3000 -->

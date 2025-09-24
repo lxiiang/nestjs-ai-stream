@@ -73,9 +73,9 @@ pipeline {
                     echo "🌐 检查前端服务..."
                     curl -f http://localhost:8081/ || echo "⚠️ 前端服务可能还在启动中"
                     
-                    # 检查后端API
+                    # 检查后端API（通过nginx代理）
                     echo "🔗 检查后端API..."
-                    curl -f http://localhost:3000/health || echo "⚠️ 后端API可能还在启动中"
+                    curl -f http://localhost:8081/api/health || echo "⚠️ 后端API可能还在启动中"
                     
                     echo "✅ 前后端服务验证完成"
                 '''

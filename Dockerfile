@@ -1,7 +1,7 @@
 # 多阶段构建 Dockerfile for NestJS AI Stream Service + Vue Client (pnpm monorepo)
 
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -30,7 +30,7 @@ RUN pnpm --filter web-client run build
 RUN pnpm --filter stream-serve run build
 
 # 生产阶段
-FROM node:18-alpine AS production
+FROM node:20-alpine AS production
 
 # 安装 nginx 用于服务前端静态文件
 RUN apk add --no-cache nginx wget

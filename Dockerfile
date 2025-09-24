@@ -17,7 +17,7 @@ COPY stream-serve/package.json ./stream-serve/
 COPY web-client/package.json ./web-client/
 
 # 安装所有依赖（monorepo 模式）
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 # 复制源代码
 COPY stream-serve/ ./stream-serve/
@@ -48,7 +48,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY stream-serve/package.json ./stream-serve/
 
 # 安装生产依赖（只安装 stream-serve 需要的）
-RUN pnpm --filter stream-serve install --prod --frozen-lockfile
+RUN pnpm --filter stream-serve install --prod --no-frozen-lockfile
 
 # 从构建阶段复制编译后的后端代码
 COPY --from=builder /app/stream-serve/dist ./stream-serve/dist
